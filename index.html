@@ -26,15 +26,12 @@
                     reader.read().then(({ done, value }) => {
                         if (done) return;
                         let text = new TextDecoder().decode(value);
-                        text.split("\n").forEach(line => {
-                            if (line) {
-                                let [x, y] = line.split(",").map(Number);
-                                ctx.lineTo(x, -y);  // Invertimos Y para coordenadas canvas
-                                ctx.stroke();
-                            }
-                        });
+                        console.log("Recibido:", text);  // 👀 Verifica que llegan datos en la consola
                         read();
                     });
+                }
+                read();
+            });
                 }
                 read();
             });
