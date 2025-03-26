@@ -1,8 +1,6 @@
-import matplotlib
-matplotlib.use("Agg")  # Usa un backend sin interfaz gráfica
 import math
-import matplotlib.pyplot as plt
-from flask import Flask, send_file
+import time
+from flask import Flask, Response, render_template
 
 app = Flask(__name__)
 
@@ -13,19 +11,18 @@ def heart2(M):
     return 12 * math.cos(M) - 5 * math.cos(2 * M) - 2 * math.cos(3 * M) - math.cos(4 * M)
 
 @app.route("/")
-def generate_heart():
-    M = [i * 0.1 for i in range(0, 628)]
-    X = [heart1(m) for m in M]
-    Y = [heart2(m) for m in M]
+def index():
+    return render_template("index.html")
 
-    plt.figure(figsize=(6, 6), facecolor="black")
-    plt.plot(X, Y, "r")
-    plt.axis("off")
-
-    plt.savefig("/tmp/heart.png", bbox_inches="tight", facecolor="black")  # Guarda en /tmp
-    plt.close()
-
-    return send_file("/tmp/heart.png", mimetype="image/png")  # Usa /tmp en Vercel
+@app.route("/stream")
+def stream():
+    def generate():
+        for i in range(500):
+            x = heart1(i * 0.05) * 18
+            y = heart2(i * 0.05) * 18
+            yield f"{x},{y}\n"
+            time.sleep(0.02)  # Simula la animación con pausas
+    return Response(generate(), mimetype="text/plain")
 
 if __name__ == "__main__":
     app.run(debug=True)
