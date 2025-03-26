@@ -13,25 +13,34 @@
     <canvas id="canvas" width="600" height="600"></canvas>
     <script>
         const canvas = document.getElementById("canvas");
-        const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d");
 
-        ctx.translate(300, 300);  // Centra el dibujo
-        ctx.strokeStyle = "red";
+ctx.translate(300, 300);  // Centrar dibujo
+ctx.strokeStyle = "red";
 
-        fetch("/stream")
-            .then(response => response.body)
-            .then(body => {
-                const reader = body.getReader();
-                function read() {
-                    reader.read().then(({ done, value }) => {
-                        if (done) return;
-                        let text = new TextDecoder().decode(value);
-                        console.log("Recibido:", text);  // 👀 Verifica que llegan datos en la consola
-                        read();
-                    });
-                }
+fetch("/stream")
+    .then(response => response.body)
+    .then(body => {
+        const reader = body.getReader();
+        function read() {
+            reader.read().then(({ done, value }) => {
+                if (done) return;
+                let text = new TextDecoder().decode(value);
+                text.split("\n").forEach(line => {
+                    if (line) {
+                        let [x, y] = line.split(",").map(Number);
+                        ctx.beginPath();  // 👀 Asegura que cada línea es independiente
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(x, -y);
+                        ctx.stroke();
+                    }
+                });
                 read();
             });
+        }
+        read();
+    });
+
                 }
                 read();
             });
