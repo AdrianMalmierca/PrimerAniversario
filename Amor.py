@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use("Agg")  # Usa un backend sin interfaz gráfica
 import math
 import matplotlib.pyplot as plt
 from flask import Flask, send_file
@@ -19,11 +21,11 @@ def generate_heart():
     plt.figure(figsize=(6, 6), facecolor="black")
     plt.plot(X, Y, "r")
     plt.axis("off")
-    
-    plt.savefig("heart.png", bbox_inches="tight", facecolor="black")
+
+    plt.savefig("/tmp/heart.png", bbox_inches="tight", facecolor="black")  # Guarda en /tmp
     plt.close()
 
-    return send_file("heart.png", mimetype="image/png")
+    return send_file("/tmp/heart.png", mimetype="image/png")  # Usa /tmp en Vercel
 
 if __name__ == "__main__":
     app.run(debug=True)
