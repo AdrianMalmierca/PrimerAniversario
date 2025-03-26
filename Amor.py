@@ -1,30 +1,46 @@
 from flask import Flask, send_file
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 app = Flask(__name__)
 
-def generar_corazon():
-    # Generar puntos para el corazón
-    t = np.linspace(0, 2 * np.pi, 1000)
-    x = 16 * np.sin(t)**3
-    y = 13 * np.cos(t) - 5 * np.cos(2*t) - 2 * np.cos(3*t) - np.cos(4*t)
+def calcular_puntos():
+    x_vals = []
+    y_vals = []
     
-    # Crear la figura
-    plt.figure(figsize=(6, 6))
-    plt.plot(x, y, color="red")
-    plt.axis("equal")
-    plt.axis("off")
+    def heart1(M):
+        return 15 * math.sin(M)**3
     
-    # Guardar la imagen
-    plt.savefig("corazon.png", bbox_inches="tight", pad_inches=0)
+    def heart2(M):
+        return 12 * math.cos(M) - 5 * math.cos(2*M) - 2 * math.cos(3*M) - math.cos(4*M)
+    
+    for i in np.linspace(0, 2*np.pi, 500):
+        x = heart1(i) * 18
+        y = heart2(i) * 18
+        x_vals.append(x)
+        y_vals.append(y)
+    
+    return x_vals, y_vals
+
+@app.route('/')
+def generar_imagen():
+    # Configurar el gráfico
+    plt.figure(figsize=(10, 10))
+    plt.style.use('dark_background')
+    
+    # Calcular y dibujar los puntos
+    x, y = calcular_puntos()
+    plt.plot(x, y, color='red', linewidth=2)
+    
+    # Ajustes estéticos
+    plt.axis('equal')
+    plt.axis('off')
+    
+    # Guardar y enviar la imagen
+    plt.savefig('corazon.png', bbox_inches='tight', pad_inches=0)
     plt.close()
+    return send_file('corazon.png', mimetype='image/png')
 
-@app.route("/")
-def mostrar_corazon():
-    # Generar el corazón si no existe
-    generar_corazon()
-    return send_file("corazon.png", mimetype="image/png")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run()
