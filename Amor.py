@@ -20,8 +20,9 @@ def stream():
         for i in range(500):
             x = heart1(i * 0.05) * 18
             y = heart2(i * 0.05) * 18
+            print(f"Enviando: {x},{y}")  # 👀 Verifica que se están enviando datos
             yield f"{x},{y}\n"
-            time.sleep(0.02)  # Simula la animación con pausas
+            time.sleep(0.02)
     return Response(generate(), mimetype="text/plain")
 
 if __name__ == "__main__":
