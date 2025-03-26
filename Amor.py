@@ -1,6 +1,10 @@
 import math
 import time
 from flask import Flask, Response, send_from_directory
+from gevent.pywsgi import WSGIServer  # 🟢 Permite mejor manejo de streaming en Vercel
+from gevent import monkey
+
+monkey.patch_all()  # 🔄 Parchea la ejecución para ser no bloqueante
 
 app = Flask(__name__)
 
@@ -22,8 +26,10 @@ def stream():
             y = heart2(i * 0.05) * 18
             print(f"Enviando: {x},{y}")  # 👀 Verifica que se están enviando datos
             yield f"{x},{y}\n"
-            time.sleep(0.02)
+            time.sleep(0.02)  # 🔄 Ahora es manejado mejor con gevent
+
     return Response(generate(), mimetype="text/plain")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    http_server = WSGIServer(("0.0.0.0", 5000), app)
+    http_server.serve_forever()
