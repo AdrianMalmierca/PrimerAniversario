@@ -1,6 +1,6 @@
 import math
 import time
-from flask import Flask, Response, send_file
+from flask import Flask, Response, send_from_directory
 
 app = Flask(__name__)
 
@@ -12,7 +12,7 @@ def heart2(M):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return send_from_directory(".", "index.html")  # "." indica el mismo directorio
 
 @app.route("/stream")
 def stream():
