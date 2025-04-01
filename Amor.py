@@ -1,35 +1,27 @@
 import math
-import time
-from flask import Flask, Response, send_from_directory
-from gevent.pywsgi import WSGIServer  # 🟢 Permite mejor manejo de streaming en Vercel
-from gevent import monkey
+import matplotlib.pyplot as plt
+import numpy as np
 
-monkey.patch_all()  # 🔄 Parchea la ejecución para ser no bloqueante
-
-app = Flask(__name__)
-
+# Definir las funciones de la forma del corazón
 def heart1(M):
-    return 15 * math.sin(M) ** 3
+    return 15 * np.sin(M)**3
 
 def heart2(M):
-    return 12 * math.cos(M) - 5 * math.cos(2 * M) - 2 * math.cos(3 * M) - math.cos(4 * M)
+    return 12 * np.cos(M) - 5 * np.cos(2*M) - 2 * np.cos(3*M) - np.cos(4*M)
 
-@app.route("/")
-def index():
-    return send_from_directory(".", "index.html")  # "." indica el mismo directorio
+# Generar los puntos del corazón
+M = np.linspace(0, 2 * np.pi, 1000)
+x = heart1(M)
+y = heart2(M)
 
-@app.route("/stream")
-def stream():
-    def generate():
-        for i in range(500):
-            x = heart1(i * 0.05) * 18
-            y = heart2(i * 0.05) * 18
-            print(f"Enviando: {x},{y}")  # 👀 Verifica que se están enviando datos
-            yield f"{x},{y}\n"
-            time.sleep(0.02)  # 🔄 Ahora es manejado mejor con gevent
+# Crear la figura
+plt.figure(figsize=(6,6))
+plt.plot(x, y, color='red')
+plt.fill(x, y, color='red')
+plt.axis('equal')
+plt.gca().set_facecolor('black')
+plt.axis('off')
 
-    return Response(generate(), mimetype="text/plain")
-
-if __name__ == "__main__":
-    http_server = WSGIServer(("0.0.0.0", 5000), app)
-    http_server.serve_forever()
+# Guardar la imagen
+plt.savefig('/path/to/your/project/heart.png', dpi=300, bbox_inches='tight')
+plt.close()
