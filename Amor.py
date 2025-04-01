@@ -1,8 +1,8 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from flask import Flask, send_file
-import os
+from flask import Flask, Response
+import io
 
 app = Flask(__name__)
 
@@ -28,13 +28,14 @@ def generate_heart():
     plt.gca().set_facecolor('black')
     plt.axis('off')
 
-    # Guardar la imagen como heart.png en el directorio temporal de Vercel
-    output_path = '/tmp/heart.png'
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    # Guardar la imagen en memoria
+    img_io = io.BytesIO()
+    plt.savefig(img_io, format='png', dpi=300, bbox_inches='tight')
+    img_io.seek(0)
     plt.close()
 
-    # Servir el archivo de imagen generado
-    return send_file(output_path, mimetype='image/png')
+    # Devolver la imagen generada como respuesta
+    return Response(img_io, mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(debug=True)
